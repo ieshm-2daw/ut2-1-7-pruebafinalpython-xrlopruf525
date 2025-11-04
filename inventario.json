@@ -5,7 +5,6 @@
         "precio": 45.99,
         "stock": 10,
         "proveedor": {
-            "codigo": "PR01",
             "nombre": "TechZone",
             "contacto": "ventas@techzone.com"
         }
@@ -16,7 +15,6 @@
         "precio": 19.95,
         "stock": 25,
         "proveedor": {
-            "codigo": "PR01",
             "nombre": "TechZone",
             "contacto": "ventas@techzone.com"
         }
@@ -24,10 +22,9 @@
     {
         "codigo": "P003",
         "nombre": "Monitor LED 24 pulgadas",
-        "precio": 139.00,
+        "precio": 139.0,
         "stock": 8,
         "proveedor": {
-            "codigo": "PR02",
             "nombre": "VisualTech",
             "contacto": "contacto@visualtech.es"
         }
@@ -35,10 +32,9 @@
     {
         "codigo": "P004",
         "nombre": "Disco SSD 1TB NVMe",
-        "precio": 89.90,
+        "precio": 89.9,
         "stock": 15,
         "proveedor": {
-            "codigo": "PR03",
             "nombre": "DataPlus",
             "contacto": "info@dataplus.com"
         }
@@ -46,13 +42,11 @@
     {
         "codigo": "P005",
         "nombre": "Auriculares Bluetooth",
-        "precio": 29.50,
-        "stock": 30,
+        "precio": 29.5,
+        "stock": 7,
         "proveedor": {
-            "codigo": "PR02",
             "nombre": "VisualTech",
             "contacto": "contacto@visualtech.es"
         }
     }
 ]
-

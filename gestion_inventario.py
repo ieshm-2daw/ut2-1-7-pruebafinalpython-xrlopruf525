@@ -24,12 +24,11 @@ import os
 
 class Proveedor:
     def __init__(self, nombre, contacto):
-        # TODO: definir los atributos de la clase
-        pass
+        self.nombre = nombre
+        self.contacto = contacto
 
     def __str__(self):
-        # TODO: devolver una cadena legible con el nombre y el contacto del proveedor
-        pass
+        return f'{self.nombre}, Contacto: {self.contacto}'
 
 
 # ======================================================
@@ -38,13 +37,14 @@ class Proveedor:
 
 class Producto:
     def __init__(self, codigo, nombre, precio, stock, proveedor):
-        # TODO: definir los atributos de la clase
-        pass
+        self.codigo = codigo
+        self.nombre = nombre
+        self.precio = precio
+        self.stock = stock
+        self.proveedor = proveedor
 
     def __str__(self):
-        # TODO: devolver una representación legible del producto
-        # Ejemplo: "[P001] Teclado - 45.99 € (10 uds.) | Proveedor: TechZone (ventas@techzone.com)"
-        pass
+        return f'[{self.codigo}] {self.nombre} - {self.precio} ({self.stock}) | {self.proveedor.nombre} ({self.proveedor.contacto})'
 
 
 # ======================================================
@@ -53,74 +53,102 @@ class Producto:
 
 class Inventario:
     def __init__(self, nombre_fichero):
-        # TODO: definir los atributos e inicializar la lista de productos
-        pass
+        self.nombre_fichero = nombre_fichero
+        self.productos = []
 
     def cargar(self):
-        """
-        Carga los datos del fichero JSON si existe y crea los objetos Producto y Proveedor.
-        Si el fichero no existe, crea un inventario vacío.
-        """
-        # TODO: implementar la lectura del fichero JSON y la creación de objetos
-        pass
+        if os.path.exists(self.nombre_fichero):
+            with open(self.nombre_fichero, 'r', encoding='utf-8') as f:
+                datos = json.load(f)
+
+            for p in datos:
+                pro_data = p.get('proveedor', {})
+                proveedor = Proveedor(pro_data.get('nombre'), pro_data.get('contacto'))
+                producto = Producto(
+                    p['codigo'],
+                    p['nombre'],
+                    p['precio'],
+                    p['stock'],
+                    proveedor
+                )
+                self.productos.append(producto)
+
 
     def guardar(self):
-        """
-        Guarda el inventario actual en el fichero JSON.
-        Convierte los objetos Producto y Proveedor en diccionarios.
-        """
-        # TODO: recorrer self.productos y guardar los datos en formato JSON
-        pass
+
+        prod_dicc = []
+        for p in self.productos:
+            prod_dicc.append({
+                'codigo': p.codigo,
+                'nombre': p.nombre,
+                'precio': p.precio,
+                'stock': p.stock,
+                'proveedor': {
+                    'nombre': p.proveedor.nombre,
+                    'contacto': p.proveedor.contacto
+                }
+            })
+
+        with open(self.nombre_fichero, 'w', encoding='utf-8') as f:
+            json.dump(prod_dicc, f, ensure_ascii=False, indent=4)
+
 
     def anadir_producto(self, producto):
-        """
-        Añade un nuevo producto al inventario si el código no está repetido.
-        """
-        # TODO: comprobar si el código ya existe y, si no, añadirlo
-        pass
+        for p in self.productos:
+            if producto.codigo == p.codigo:
+                print("Producto existente.")
+                return
+        self.productos.append(producto)
+        print("Producto añadido correctamente.")
 
     def mostrar(self):
-        """
-        Muestra todos los productos del inventario.
-        """
-        # TODO: mostrar todos los productos almacenados
-        pass
+        for p in self.productos:
+            print(p)
 
     def buscar(self, codigo):
-        """
-        Devuelve el producto con el código indicado, o None si no existe.
-        """
-        # TODO: buscar un producto por código
-        pass
+
+        for p in self.productos:
+            if p.codigo == codigo:
+                return p
+        return None
 
     def modificar(self, codigo, nombre=None, precio=None, stock=None):
-        """
-        Permite modificar los datos de un producto existente.
-        """
-        # TODO: buscar el producto y actualizar sus atributos
-        pass
+        producto = self.buscar(codigo)
+        if producto:
+            if nombre:
+                producto.nombre = nombre
+            if precio:
+                producto.precio = float(precio)
+            if stock:
+                producto.stock = int(stock)
+            print("Producto modificado correctamente.")
+        else:
+            print("El producto no existe.")
+
 
     def eliminar(self, codigo):
-        """
-        Elimina un producto del inventario según su código.
-        """
-        # TODO: eliminar el producto de la lista
-        pass
+        self.productos = [p for p in self.productos if p.codigo != codigo]
 
     def valor_total(self):
-        """
-        Calcula y devuelve el valor total del inventario (precio * stock).
-        """
-        # TODO: devolver la suma total del valor del stock
-        pass
+        total = 0.0
+        for p in self.productos:
+            try:
+                total += float(p.precio) * int(p.stock)
+            except ValueError:
+                print(f"Error los datos tienen otros valores")
+        return total
+
 
     def mostrar_por_proveedor(self, nombre_proveedor):
-        """
-        Muestra todos los productos de un proveedor determinado.
-        Si no existen productos de ese proveedor, mostrar un mensaje.
-        """
-        # TODO: filtrar y mostrar los productos de un proveedor concreto
-        pass
+        encontrados = [p for p in self.productos if p.proveedor.nombre.lower() == nombre_proveedor.lower()]
+
+        if not encontrados:
+            print(f"No hay productos del proveedor")
+        else:
+            print(f"Productos del proveedor '{nombre_proveedor}':")
+            for p in encontrados:
+                print(p)
+
 
 
 # ======================================================
@@ -128,7 +156,8 @@ class Inventario:
 # ======================================================
 
 def main():
-    # TODO: crear el objeto Inventario y llamar a los métodos según la opción elegida
+    inventario = Inventario("inventario.json")
+    inventario.cargar()
     while True:
         print("\n=== GESTIÓN DE INVENTARIO ===")
         print("1. Añadir producto")
@@ -142,7 +171,55 @@ def main():
 
         opcion = input("Seleccione una opción: ")
 
-        # TODO: implementar las acciones correspondientes a cada opción del menú
+        if opcion == '1':
+            codigo = input("Introduce el codigo: ")
+            nombre = input("Introduce el nombre: ")
+            precio = input("Introduce el precio: ")
+            stock = input("Introduce el stock: ")
+            nombre_pro = input("Introduce el nombre del proveedor: ")
+            contacto_pro = input("Introduce el contacto del proveedor: ")
+            proveedor = Proveedor(nombre_pro, contacto_pro)
+            producto = Producto(
+                codigo,
+                nombre,
+                precio,
+                stock,
+                proveedor
+            )
+            inventario.anadir_producto(producto)
+        elif opcion == '2':
+            inventario.mostrar()
+
+        elif opcion == '3':
+            codigo = input("Introduce el codigo del producto a buscar: ")
+            res = inventario.buscar(codigo)
+            print(res)
+        elif opcion == '4':
+            codigo = input("Introduce el código del producto a modificar: ")
+            nombre = input("Nuevo nombre: ")
+            precio = input("Nuevo precio: ")
+            stock = input("Nuevo stock: ")
+            inventario.modificar(
+                codigo,
+                nombre if nombre else None,
+                float(precio) if precio else None,
+                int(stock) if stock else None
+            )
+
+        elif opcion == '5':
+            codigo = input("Introduce el codigo del producto a eliminar: ")
+            inventario.eliminar(codigo)
+        elif opcion == '6':
+            print(f' El valor total es de:  {inventario.valor_total()}')
+        elif opcion == '7':
+            nombre_pro = input("Introduce el nombre del proveedor a buscar: ")
+            inventario.mostrar_por_proveedor(nombre_pro)
+        elif opcion == '8':
+            inventario.guardar()
+            print("Datos guardados  y saliendo.")
+            break
+        else:
+            print("Opcion incorrecta")
 
 
 if __name__ == "__main__":
